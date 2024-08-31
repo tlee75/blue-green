@@ -5,7 +5,7 @@ metadata:
 spec:
   selector:
     app: th3-server
-    env: ENV_ENVIRONMENT
+    env: ENV_DEPLOY_COLOR
   ports:
   - name: http
     port: 8080

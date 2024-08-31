@@ -4,18 +4,18 @@ metadata:
   name: th3-server
   labels:
     app: th3-server
-    env: ENV_ENVIRONMENT
+    env: ENV_DEPLOY_COLOR
     version: ENV_IMAGE_TAG
 spec:
   replicas: 1
   selector:
     matchLabels:
-      env: ENV_ENVIRONMENT
+      env: ENV_DEPLOY_COLOR
   template:
     metadata:
       labels:
         app: th3-server
-        env: ENV_ENVIRONMENT
+        env: ENV_DEPLOY_COLOR
         version: ENV_IMAGE_TAG
     spec:
       containers:

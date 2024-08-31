@@ -22,7 +22,7 @@ runs:
         for file in ./manifests/*.yml; do
           [ -f "${file}" ] || break # Don't iterate over null
           echo "Rendering $file"
-          sed -e 's/ENV_ENVIRONMENT/environment/g' -e 's/ENV_IMAGE_TAG/0.0.1/g' ${file} > ${file}.bak
+          sed -e 's/ENV_DEPLOY_COLOR/environment/g' -e 's/ENV_IMAGE_TAG/0.0.1/g' ${file} > ${file}.bak
           mv ${file}.bak ${file}
           cat ${file}
         done
