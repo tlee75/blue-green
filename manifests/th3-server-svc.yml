@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: th3-server-svc
+  labels:
+    app: th3-server
 spec:
   selector:
     app: th3-server

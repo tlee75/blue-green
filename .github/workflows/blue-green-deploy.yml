@@ -57,9 +57,30 @@ jobs:
           path: ./manifests
           image-tag: ${{ inputs.image-tag }}
           deploy-color: ${{ inputs.deploy-color }}
-      # obtain kubeconfig
-      # deploy
-      # smoke test
+      - uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-host: ${{ vars.SERVER_URL }}
+      - name: Validate and apply deployment
+        run: |
+          echo "Applying Deployment"
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
+            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-deploy.yml
+      - name: Validate and apply service ONLY on fresh deployments
+        run: |
+          echo "Checking for existing service pointing to the app"
+          NUM_SERVICES=$(ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
+            "kubectl get svc --selector=app=th3-server -o json | jq -r '.items | length'")
+          if [ "${NUM_SERVICES} -eq 0 ]; then
+            echo "No existing services exist, safe to apply initial service configuration"
+            ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
+              "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-svc.yml
+          else
+            echo "Found an existing service, skipping apply to prevent accidentally redirecting traffic"
+          fi
+      - name: Smoke Test
+        run: |
+          echo "Smoke Tests"
 
   manual-approval:
     if: ${{ inputs.deploy-only != true }}
