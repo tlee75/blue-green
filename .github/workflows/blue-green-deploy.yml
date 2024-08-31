@@ -62,7 +62,7 @@ jobs:
       # smoke test
 
   manual-approval:
-    if: ${{ inputs.deploy-only != 'true' }}
+    if: ${{ inputs.deploy-only != true }}
     name: Manual Approval
     needs: [ deployment ]
     runs-on: 'ubuntu-latest'
