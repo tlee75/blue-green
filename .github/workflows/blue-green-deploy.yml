@@ -1,0 +1,86 @@
+name: Blue Green Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        type: string
+        description: Image Tag
+      deploy-color:
+        type: choice
+        options:
+        - blue
+        - green
+        description: Deploy Color
+      switch-traffic:
+        type: boolean
+        description: Switch
+      gh-environment:
+        type: choice
+        options:
+        - dev
+        - prod
+        description: Github Environment
+
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      - name: Docker Login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build, tag, and push image to Dockerhub
+        env:
+          IMAGE_TAG: ${{ inputs.image-tag }}
+          IMAGE_NAME: th3-server
+          SWITCH_TRAFFIC: ${{ inputs.switch-traffic }}
+        run: |
+          docker build -t docker.io/${{ vars.DOCKERHUB_ACCOUNT }}/$IMAGE_NAME:$IMAGE_TAG -f dockerfiles/th3-server/Dockerfile .
+          docker push docker.io/${{ vars.DOCKERHUB_ACCOUNT }}/$IMAGE_NAME:$IMAGE_TAG
+
+  deployment:
+    name: Deploy
+    needs: [ build ]
+    runs-on: 'ubuntu-latest'
+    environment: ${{ inputs.gh-environment }}
+    steps:
+      - uses: actions/checkout@v4.1.1
+      - name: Render Templates
+        uses: ./.github/actions/render-templates
+        with:
+          path: ./manifests
+          image-tag: ${{ inputs.image-tag }}
+          deploy-color: ${{ inputs.deploy-color }}
+      # obtain kubeconfig
+      # deploy
+      # smoke test
+
+  manual-approval:
+    if: ${{ github.event.inputs.switch-traffic == true }}
+    name: Manual Approval
+    needs: [ deployment ]
+    runs-on: 'ubuntu-latest'
+    environment: ${{ inputs.gh-environment }}-manual
+    steps:
+      - name: Display Approver
+        run: |
+          echo "Job has been approved by $GITHUB_TRIGGERING_ACTOR"
+
+  switch-traffic:
+    name: Switch Traffic
+    needs: [ manual-approval ]
+    runs-on: 'ubuntu-latest'
+    environment: ${{ inputs.gh-environment }}
+      steps:
+        - uses: actions/checkout@v4.1.1
+        # start monitor script in bg and get PID with $!
+        # Render template variables
+        # switch traffic with: kubectl apply -f blue-green-svc.yml --dry-run=client -o yaml | kubectl apply -f -
+        # stop PID and Upload log artifact
+        # smoke test
