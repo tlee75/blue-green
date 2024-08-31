@@ -14,7 +14,6 @@ on:
         description: Deploy Color
       deploy-only:
         type: boolean
-        default: false
         description: Deploy Only
       gh-environment:
         type: choice
@@ -63,7 +62,7 @@ jobs:
       # smoke test
 
   manual-approval:
-    if: ${{ github.event.inputs.deploy-only == false }}
+    if: ${{ inputs.deploy-only != 'true' }}
     name: Manual Approval
     needs: [ deployment ]
     runs-on: 'ubuntu-latest'
