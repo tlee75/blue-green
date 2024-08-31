@@ -71,7 +71,7 @@ jobs:
           echo "Checking for existing service pointing to the app"
           NUM_SERVICES=$(ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
             "kubectl get svc --selector=app=th3-server -o json | jq -r '.items | length'")
-          if [ "${NUM_SERVICES} -eq 0 ]; then
+          if [ "${NUM_SERVICES}" -eq 0 ]; then
             echo "No existing services exist, safe to apply initial service configuration"
             ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
               "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-svc.yml
