@@ -12,9 +12,10 @@ on:
         - blue
         - green
         description: Deploy Color
-      switch-traffic:
+      deploy-only:
         type: boolean
-        description: Switch
+        default: false
+        description: Deploy Only
       gh-environment:
         type: choice
         options:
@@ -62,7 +63,7 @@ jobs:
       # smoke test
 
   manual-approval:
-    if: ${{ github.event.inputs.switch-traffic == true }}
+    if: ${{ github.event.inputs.deploy-only == false }}
     name: Manual Approval
     needs: [ deployment ]
     runs-on: 'ubuntu-latest'
