@@ -22,7 +22,7 @@ Start the server:
 #### Docker
 
 Build the image:  
-`IMAGE_VERSION=0.0.1 ./build-client.sh`
+`IMAGE_TAG=0.0.1 ./build-client.sh`
 
 Start the server:  
 `sudo docker run --name th3-server -p 8080:8080 --rm -it docker.io/tlee75/th3-server:0.0.1`  
