@@ -19,10 +19,10 @@ runs:
     - name: Render and display
       shell: bash
       run: |
-        for file in ./manifests/*.yml; do
+        for file in ${{ inputs.path }}/*.yml; do
           [ -f "${file}" ] || break # Don't iterate over null
           echo "Rendering $file"
-          sed -e 's/ENV_DEPLOY_COLOR/environment/g' -e 's/ENV_IMAGE_TAG/0.0.1/g' ${file} > ${file}.bak
+          sed -e 's/ENV_DEPLOY_COLOR/${{ inputs.deploy-color }}/g' -e 's/ENV_IMAGE_TAG/${{ inputs.image-tag }}/g' ${file} > ${file}.bak
           mv ${file}.bak ${file}
           cat ${file}
         done
