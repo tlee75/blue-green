@@ -77,10 +77,10 @@ jobs:
     needs: [ manual-approval ]
     runs-on: 'ubuntu-latest'
     environment: ${{ inputs.gh-environment }}
-      steps:
-        - uses: actions/checkout@v4.1.1
-        # start monitor script in bg and get PID with $!
-        # Render template variables
-        # switch traffic with: kubectl apply -f blue-green-svc.yml --dry-run=client -o yaml | kubectl apply -f -
-        # stop PID and Upload log artifact
-        # smoke test
+    steps:
+      - uses: actions/checkout@v4.1.1
+      # start monitor script in bg and get PID with $!
+      # Render template variables
+      # switch traffic with: kubectl apply -f blue-green-svc.yml --dry-run=client -o yaml | kubectl apply -f -
+      # stop PID and Upload log artifact
+      # smoke test
