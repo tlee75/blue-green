@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: th3-server
+  name: ENV_DEPLOY_COLOR-th3-server
   labels:
     app: th3-server
     env: ENV_DEPLOY_COLOR
