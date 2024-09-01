@@ -97,6 +97,10 @@ jobs:
     environment: ${{ inputs.gh-environment }}
     steps:
       - uses: actions/checkout@v4.1.1
+      - uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-host: ${{ vars.SSH_SERVER_URL }}
       - name: Detect the current color
         id: detect_color
         run: |
