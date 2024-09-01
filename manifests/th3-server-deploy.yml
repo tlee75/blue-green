@@ -22,5 +22,6 @@ spec:
       containers:
       - name: th3-server
         image: tlee75/th3-server:ENV_IMAGE_TAG
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080

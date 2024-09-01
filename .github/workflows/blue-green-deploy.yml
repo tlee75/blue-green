@@ -65,17 +65,17 @@ jobs:
       - name: Configure Ingress
         run: |
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
-            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-ingress.yml
+            "kubectl apply -f -" < ./manifests/th3-server-ingress.yml
           if [ "$?" -ne 0 ]; then
             echo "Error occurred while applying the manifest"
             exit 1
           fi
-      - name: Validate and apply deployment
+      - name: Apply deployment
         run: |
           echo "Applying Deployment"
           cat ./manifests/th3-server-deploy.yml
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
-            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-deploy.yml
+            "kubectl apply -f -" < ./manifests/th3-server-deploy.yml
           if [ "$?" -ne 0 ]; then
             echo "Error occurred while applying the manifest"
             exit 1
@@ -136,7 +136,7 @@ jobs:
         run: |
           echo "Applying Deployment"
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
-            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-svc.yml
+            "kubectl apply -f -" < ./manifests/th3-server-svc.yml
           if [ "$?" -ne 0 ]; then
             echo "Error occurred while applying the manifest"
             exit 1
