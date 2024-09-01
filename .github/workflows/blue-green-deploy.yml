@@ -101,7 +101,7 @@ jobs:
         id: detect_color
         run: |
           CURRENT_COLOR=$(ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
-            "kubectl get svc th3-server-svc -o json | jq -r '.spec.selector.env')
+            "kubectl get svc th3-server-svc -o json | jq -r '.spec.selector.env'")
           if [ "${CURRENT_COLOR}" == 'blue' ]; then
             echo "Current color is BLUE, switching to GREEN"
             echo "NEW_COLOR=green" >> $GITHUB_OUTPUT
