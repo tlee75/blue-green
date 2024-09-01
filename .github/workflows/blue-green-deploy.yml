@@ -62,19 +62,22 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           ssh-host: ${{ vars.SSH_SERVER_URL }}
+      - name: Configure Ingress
+        run: |
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
+            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-ingress.yml
       - name: Validate and apply deployment
         run: |
           echo "Applying Deployment"
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
             "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-deploy.yml
-      - name: Apply Ingress
-        run: |
+          echo "Waiting for deployment to be ready..."
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
-            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-ingress.yml
+            "kubectl wait deployment ${{ inputs.deploy-color }}-th3-server --for condition=Available=True --timeout=120s"
       - name: Postflight
         run: |
           echo "Attempting to fetch version"
-          curl ${{ inputs.deploy-color }}-th3-server.tylerlee.dev/version
+          curl --fail ${{ inputs.deploy-color }}-th3-server.tylerlee.dev/version
 
   manual-approval:
     if: ${{ inputs.deploy-only != true }}
