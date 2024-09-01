@@ -66,11 +66,19 @@ jobs:
         run: |
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
             "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-ingress.yml
+          if [ "$?" -ne 0 ]; then
+            echo "Error occurred while applying the manifest"
+            exit 1
+          fi
       - name: Validate and apply deployment
         run: |
           echo "Applying Deployment"
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
             "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-deploy.yml
+          if [ "$?" -ne 0 ]; then
+            echo "Error occurred while applying the manifest"
+            exit 1
+          fi
           echo "Waiting for deployment to be ready..."
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
             "kubectl wait deployment ${{ inputs.deploy-color }}-th3-server --for condition=Available=True --timeout=120s"
@@ -128,6 +136,10 @@ jobs:
           echo "Applying Deployment"
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
             "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-svc.yml
+          if [ "$?" -ne 0 ]; then
+            echo "Error occurred while applying the manifest"
+            exit 1
+          fi
           sleep 10
       - name: Postflight
         run: |
