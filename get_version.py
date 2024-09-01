@@ -17,11 +17,12 @@ logger.setLevel(logging.DEBUG)
 
 # Prep
 server_url: str = os.getenv("SERVER_URL", 'http://localhost')
-server_port: str = os.getenv("NODE_PORT", '30428')
+server_port: str = os.getenv("PORT", '8080')
 req_timeout: int = 3
 code_summary: Dict = {}
 app_versions: set = set()
-
+num_polling_events: int = 100
+request_delay: int = 0
 
 def display_summary():
     """
@@ -66,8 +67,6 @@ def main():
     Fetch the version from the endpoint until we detect the switch
     """
 
-    num_polling_events: int = 100
-    request_delay: int = 0
     logger.info('Started')
     print("Script will continuously log to file until the version switch is detected...")
 

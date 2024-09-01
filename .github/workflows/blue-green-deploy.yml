@@ -128,6 +128,7 @@ jobs:
           echo "Applying Deployment"
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
             "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-svc.yml
+          sleep 10
       - name: Postflight
         run: |
           echo "Attempting to fetch version"
