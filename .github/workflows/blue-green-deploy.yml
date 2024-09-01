@@ -73,6 +73,7 @@ jobs:
       - name: Validate and apply deployment
         run: |
           echo "Applying Deployment"
+          cat ./manifests/th3-server-deploy.yml
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
             "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-deploy.yml
           if [ "$?" -ne 0 ]; then
