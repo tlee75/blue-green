@@ -97,8 +97,37 @@ jobs:
     environment: ${{ inputs.gh-environment }}
     steps:
       - uses: actions/checkout@v4.1.1
+      - name: Detect the current color
+        id: detect_color
+        run: |
+          CURRENT_COLOR=$(ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
+            "kubectl get svc th3-server-svc -o json | jq -r '.spec.selector.env')
+          if [ "${CURRENT_COLOR}" == 'blue' ]; then
+            echo "Current color is BLUE, switching to GREEN"
+            echo "NEW_COLOR=green" >> $GITHUB_OUTPUT
+          elif [ "${CURRENT_COLOR}" == 'green' ]; then
+            echo "Color is GREEN, switching to BLUE"
+            echo "NEW_COLOR=blue" >> $GITHUB_OUTPUT
+          else
+            # TODO: This is brittle, needs explicit deploy-time configs to prevent making a bad assumption or put first start code somewhere else
+            echo "Service wasn't detected, treating like fresh deployment"
+            echo "NEW_COLOR=${{ inputs.deploy-color }}" >> $GITHUB_OUTPUT
+          fi
+      - name: Render inverted service manifest
+        uses: ./.github/actions/render-templates
+        with:
+          path: ./manifests
+          image-tag: ${{ inputs.image-tag }}
+          deploy-color: ${{ steps.detect_color.outputs.NEW_COLOR }}
+      - name: Switch Traffic
+        run: |
+          echo "Applying Deployment"
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
+            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-svc.yml
+      - name: Postflight
+        run: |
+          echo "Attempting to fetch version"
+          curl --fail th3-server.tylerlee.dev/version
       # start monitor script in bg and get PID with $!
-      # Render template variables
-      # switch traffic with: kubectl apply -f blue-green-svc.yml --dry-run=client -o yaml | kubectl apply -f -
       # stop PID and Upload log artifact
       # test
