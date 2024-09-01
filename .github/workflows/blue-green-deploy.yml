@@ -66,21 +66,20 @@ jobs:
           echo "Applying Deployment"
           ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
             "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-deploy.yml
-      - name: Validate and apply service ONLY on fresh deployments
+      - name: Create color specific services for testing
         run: |
-          echo "Checking for existing service pointing to the app"
-          NUM_SERVICES=$(ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
-            "kubectl get svc --selector=app=th3-server -o json | jq -r '.items | length'")
-          if [ "${NUM_SERVICES}" -eq 0 ]; then
-            echo "No existing services exist, safe to apply initial service configuration"
-            ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
-              "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-svc.yml
-          else
-            echo "Found an existing service, skipping apply to prevent accidentally redirecting traffic"
-          fi
-      - name: Smoke Test
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
+            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-blue-svc.yml
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
+            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-green-svc.yml
+      - name: Apply Ingress
         run: |
-          echo "Smoke Tests"
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SERVER_URL }} \
+            "kubectl apply --dry-run=client -o yaml -f - | kubectl apply -f -" < ./manifests/th3-server-ingress.yml
+      - name: Postflight
+        run: |
+          echo "Attempting to fetch version"
+          curl ${{ inputs.deploy-color }}-th3-server.tylerlee.dev/version
 
   manual-approval:
     if: ${{ inputs.deploy-only != true }}
@@ -104,4 +103,4 @@ jobs:
       # Render template variables
       # switch traffic with: kubectl apply -f blue-green-svc.yml --dry-run=client -o yaml | kubectl apply -f -
       # stop PID and Upload log artifact
-      # smoke test
+      # test

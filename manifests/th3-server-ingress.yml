@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blue-th3-server-svc
+  labels:
+    app: th3-server
+spec:
+  selector:
+    app: th3-server
+    env: blue
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: green-th3-server-svc
+  labels:
+    app: th3-server
+spec:
+  selector:
+    app: th3-server
+    env: green
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: th3-server-ingress
+spec:
+  rules:
+  - host: th3-server.tylerlee.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: th3-server-svc
+            port:
+              number: 8080
+  - host: blue-th3-server.tylerlee.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: blue-th3-server-svc
+            port:
+              number: 8080
+  - host: green-th3-server.tylerlee.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: green-th3-server-svc
+            port:
+              number: 8080
