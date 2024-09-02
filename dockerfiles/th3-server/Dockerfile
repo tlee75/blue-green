@@ -1,4 +1,6 @@
 FROM python:3.8.19-slim-bullseye
+ARG IMAGE_TAG_ARG
+ENV IMAGE_TAG=$IMAGE_TAG_ARG
 
 RUN apt update -y && pip install --upgrade pip
 
