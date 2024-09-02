@@ -33,6 +33,15 @@ To observe the connectivity to the deployment, install the required package and 
 port and url before running the script. The script primarily outputs to a file on disk and will run 
 indefinitely or until a version change has been detected.  
 
+The color agnostic endpoint can be reached at:  
+https://th3-server.tylerlee.dev/version
+
+To test a specific color:  
+Blue: https://blue-th3-server.tylerlee.dev/version  
+Green: https://green-th3-server.tylerlee.dev/version
+
+The deployment can be switched between the colors by running the idempotent "Switch Traffic" job at the end of the workflow.  
+
 ```
 python3 -m pip install requests==2.32.3  
 python3 get_version.py  
@@ -68,6 +77,9 @@ workflow.
 ### Pipeline after deploying and waiting for traffic switch:  
 ![waiting-for-approval](https://private-user-images.githubusercontent.com/103002386/363773275-d1ac4a9e-62d8-4efe-823b-d0468822404f.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjUzMDI4MjcsIm5iZiI6MTcyNTMwMjUyNywicGF0aCI6Ii8xMDMwMDIzODYvMzYzNzczMjc1LWQxYWM0YTllLTYyZDgtNGVmZS04MjNiLWQwNDY4ODIyNDA0Zi5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQwOTAyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDkwMlQxODQyMDdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0zMTI0MWJmOGEyYjVhOTg1OTE1YmJhNzk3MjMwMzBlMTNmODQ5ZTJmOTRhNDY3ZDU2OGRkYjE4YTBlZGMwMzk1JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9.8kkGYx0m-BEDW2PQT1DC7ROy8NpVvCnAJCRDbi_hgy8)  
 
+Instead of automatically switching traffic after a deployment, a manual approval gate was setup to allow teams to perform
+testing prior to switching.
+
 ### Manual approval menu:  
 ![approval-confirmation](https://private-user-images.githubusercontent.com/103002386/363773691-a2e83e84-cd2e-4eae-aca7-77e98e75a5b9.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjUzMDI4MjcsIm5iZiI6MTcyNTMwMjUyNywicGF0aCI6Ii8xMDMwMDIzODYvMzYzNzczNjkxLWEyZTgzZTg0LWNkMmUtNGVhZS1hY2E3LTc3ZTk4ZTc1YTViOS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQwOTAyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDkwMlQxODQyMDdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1kMTg3NjViNTIzYjEwNTA0YmZlODY5OTI3ZWI5YWE1NzUwNDJkZTFkMjVhYmVhMjNiZjRiMmI4MjA3MjJkNTk4JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9.JPpLjfWrzGp9Vckq2ATfJxRuhQn_duX6YEf4hFfvPX4)  
 
@@ -76,6 +88,9 @@ workflow.
 
 ### Rollback switched traffic:  
 ![rollback](https://private-user-images.githubusercontent.com/103002386/363773469-743bdee9-af3a-4f7d-9f64-1563f14e4b11.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjUzMDI4MjcsIm5iZiI6MTcyNTMwMjUyNywicGF0aCI6Ii8xMDMwMDIzODYvMzYzNzczNDY5LTc0M2JkZWU5LWFmM2EtNGY3ZC05ZjY0LTE1NjNmMTRlNGIxMS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQwOTAyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDkwMlQxODQyMDdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1kYjdlYjY0YWIyNjBlZWFiOGIzODFjNzY2ZjQyNDk0ZTY2NWMzMTJlYjcyNjlmZWE0MTRjNDQzOTJlZmZlMzkyJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9.c4rtPMqSJb-iIlzO5LJVtC7ah2ufoZgtJHHXEzayh28)  
+
+By re-running the traffic switch job, it will invert the Kubernetes service selectors and effectively revert traffic to 
+the previous deployment.  
 
 # Notes
 
