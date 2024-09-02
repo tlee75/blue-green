@@ -26,4 +26,5 @@ spec:
         ports:
         - containerPort: 8080
         env:
-        - IMAGE_TAG: ENV_IMAGE_TAG
+        - name: IMAGE_TAG
+          value: ENV_IMAGE_TAG
