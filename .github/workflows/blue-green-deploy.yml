@@ -1,5 +1,5 @@
 name: Blue Green Deployment
-run-name: Deploy to "${{ inputs.deploy-color }}" by @${{ github.actor }}
+run-name: Deploy ${{ inputs.image-tag }} to "${{ inputs.deploy-color }}" by @${{ github.actor }}
 
 on:
   workflow_dispatch:
@@ -146,6 +146,3 @@ jobs:
         run: |
           echo "Attempting to fetch version"
           curl --fail th3-server.tylerlee.dev/version
-      # start monitor script in bg and get PID with $!
-      # stop PID and Upload log artifact
-      # test
