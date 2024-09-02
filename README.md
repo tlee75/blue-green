@@ -76,3 +76,14 @@ workflow.
 
 ### Rollback switched traffic:  
 ![rollback](https://private-user-images.githubusercontent.com/103002386/363773469-743bdee9-af3a-4f7d-9f64-1563f14e4b11.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjUzMDI4MjcsIm5iZiI6MTcyNTMwMjUyNywicGF0aCI6Ii8xMDMwMDIzODYvMzYzNzczNDY5LTc0M2JkZWU5LWFmM2EtNGY3ZC05ZjY0LTE1NjNmMTRlNGIxMS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQwOTAyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDkwMlQxODQyMDdaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1kYjdlYjY0YWIyNjBlZWFiOGIzODFjNzY2ZjQyNDk0ZTY2NWMzMTJlYjcyNjlmZWE0MTRjNDQzOTJlZmZlMzkyJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9.c4rtPMqSJb-iIlzO5LJVtC7ah2ufoZgtJHHXEzayh28)  
+
+# Notes
+
+This project has a lot of room for growth, here are some thoughts:  
+
+- Consider a weight based canary deployment strategy
+- Explore using a service mesh, cloud based load balancer, Argo Rollouts
+- If this application were more complex that would make storing all the resources for two versions of the application
+within the same namespace more difficult, leading to file duplication, naming collisions, templating complexity, helm 
+deployment collisions, etc. In that case using separate namespaces might make more sense but that complicates some aspects 
+such as using cluster wide resources like persistent volumes and would need to be considered as part of the design.  
