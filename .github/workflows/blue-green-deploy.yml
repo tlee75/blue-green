@@ -1,0 +1,147 @@
+name: Blue Green Deployment
+run-name: Deploy ${{ inputs.image-tag }} to "${{ inputs.deploy-color }}" by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        type: string
+        description: Image Tag
+      deploy-color:
+        type: choice
+        options:
+        - blue
+        - green
+        description: Deploy Color
+      deploy-only:
+        type: boolean
+        description: Deploy Only
+      gh-environment:
+        type: choice
+        options:
+        - dev
+        - prod
+        description: Github Environment
+
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+      - name: Docker Login
+        uses: docker/login-action@v3.0.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build, tag, and push image to Dockerhub
+        env:
+          IMAGE_TAG: ${{ inputs.image-tag }}
+          IMAGE_NAME: th3-server
+          SWITCH_TRAFFIC: ${{ inputs.switch-traffic }}
+        run: |
+          docker build --build-arg IMAGE_TAG_ARG=$IMAGE_TAG -t docker.io/${{ vars.DOCKERHUB_ACCOUNT }}/$IMAGE_NAME:$IMAGE_TAG -f dockerfiles/th3-server/Dockerfile .
+          docker push docker.io/${{ vars.DOCKERHUB_ACCOUNT }}/$IMAGE_NAME:$IMAGE_TAG
+
+  deployment:
+    name: Deploy
+    needs: [ build ]
+    runs-on: 'ubuntu-latest'
+    environment: ${{ inputs.gh-environment }}
+    steps:
+      - uses: actions/checkout@v4.1.1
+      - name: Render Templates
+        uses: ./.github/actions/render-templates
+        with:
+          path: ./manifests
+          image-tag: ${{ inputs.image-tag }}
+          deploy-color: ${{ inputs.deploy-color }}
+      - uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-host: ${{ vars.SSH_SERVER_URL }}
+      - name: Configure Ingress
+        run: |
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
+            "kubectl apply -f -" < ./manifests/th3-server-ingress.yml
+          if [ "$?" -ne 0 ]; then
+            echo "Error occurred while applying the manifest"
+            exit 1
+          fi
+      - name: Apply deployment
+        run: |
+          echo "Applying Deployment"
+          cat ./manifests/th3-server-deploy.yml
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
+            "kubectl apply -f -" < ./manifests/th3-server-deploy.yml
+          if [ "$?" -ne 0 ]; then
+            echo "Error occurred while applying the manifest"
+            exit 1
+          fi
+          echo "Waiting for deployment to be ready..."
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
+            "kubectl wait deployment ${{ inputs.deploy-color }}-th3-server --for condition=Available=True --timeout=120s"
+      - name: Postflight
+        run: |
+          echo "Attempting to fetch version"
+          curl --fail ${{ inputs.deploy-color }}-th3-server.tylerlee.dev/version
+
+  manual-approval:
+    if: ${{ inputs.deploy-only != true }}
+    name: Manual Approval
+    needs: [ deployment ]
+    runs-on: 'ubuntu-latest'
+    environment: ${{ inputs.gh-environment }}-manual
+    steps:
+      - name: Display Approver
+        run: |
+          echo "Job has been approved by $GITHUB_TRIGGERING_ACTOR"
+
+  switch-traffic:
+    name: Switch Traffic
+    needs: [ manual-approval ]
+    runs-on: 'ubuntu-latest'
+    environment: ${{ inputs.gh-environment }}
+    steps:
+      - uses: actions/checkout@v4.1.1
+      - uses: kielabokkie/ssh-key-and-known-hosts-action@v1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-host: ${{ vars.SSH_SERVER_URL }}
+      - name: Detect the current color
+        id: detect_color
+        run: |
+          CURRENT_COLOR=$(ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
+            "kubectl get svc th3-server-svc -o json | jq -r '.spec.selector.env'")
+          if [ "${CURRENT_COLOR}" == 'blue' ]; then
+            echo "Current color is BLUE, switching to GREEN"
+            echo "NEW_COLOR=green" >> $GITHUB_OUTPUT
+          elif [ "${CURRENT_COLOR}" == 'green' ]; then
+            echo "Color is GREEN, switching to BLUE"
+            echo "NEW_COLOR=blue" >> $GITHUB_OUTPUT
+          else
+            echo "Service wasn't detected, treating like fresh deployment"
+            echo "NEW_COLOR=${{ inputs.deploy-color }}" >> $GITHUB_OUTPUT
+          fi
+      - name: Render inverted service manifest
+        uses: ./.github/actions/render-templates
+        with:
+          path: ./manifests
+          image-tag: ${{ inputs.image-tag }}
+          deploy-color: ${{ steps.detect_color.outputs.NEW_COLOR }}
+      - name: Switch Traffic
+        run: |
+          echo "Applying Deployment"
+          ssh -o StrictHostKeychecking=no ${{ vars.SERVER_USERNAME }}@${{ vars.SSH_SERVER_URL }} \
+            "kubectl apply -f -" < ./manifests/th3-server-svc.yml
+          if [ "$?" -ne 0 ]; then
+            echo "Error occurred while applying the manifest"
+            exit 1
+          fi
+          sleep 10
+      - name: Postflight
+        run: |
+          echo "Attempting to fetch version"
+          curl --fail th3-server.tylerlee.dev/version

@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ENV_DEPLOY_COLOR-th3-server
+  labels:
+    app: th3-server
+    env: ENV_DEPLOY_COLOR
+    version: ENV_IMAGE_TAG
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      env: ENV_DEPLOY_COLOR
+  template:
+    metadata:
+      labels:
+        app: th3-server
+        env: ENV_DEPLOY_COLOR
+        version: ENV_IMAGE_TAG
+    spec:
+      containers:
+      - name: th3-server
+        image: tlee75/th3-server:ENV_IMAGE_TAG
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: IMAGE_TAG
+          value: ENV_IMAGE_TAG
