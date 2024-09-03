@@ -53,13 +53,13 @@ Multiple variables and secrets are required:
 
 **Repository Secrets**:  
 DOCKERHUB_USERNAME  
-DOCKERHUB_TOKEN
-SSH_PRIVATE_KEY
+DOCKERHUB_TOKEN  
+SSH_PRIVATE_KEY  
 
 **Repository Variables**:  
-DOCKERHUB_ACCOUNT
-SSH_SERVER_URL
-SERVER_USERNAME
+DOCKERHUB_ACCOUNT  
+SSH_SERVER_URL  
+SERVER_USERNAME  
 
 ## Build and Deploy
 
