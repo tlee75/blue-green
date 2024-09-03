@@ -66,10 +66,10 @@ SERVER_USERNAME
 You may initiate a deployment via Github Actions using the [Blue Green Deployment](https://github.com/tlee75/blue-green/actions/workflows/blue-green-deploy.yml)
 workflow.
 
-### Workflow Disaptch menu:  
+### Workflow Dispatch menu:  
 ![workflow-dispatch](https://private-user-images.githubusercontent.com/103002386/363773390-0c2aaade-6c83-452a-b5d7-78f19395c867.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjUzMTIzNzQsIm5iZiI6MTcyNTMxMjA3NCwicGF0aCI6Ii8xMDMwMDIzODYvMzYzNzczMzkwLTBjMmFhYWRlLTZjODMtNDUyYS1iNWQ3LTc4ZjE5Mzk1Yzg2Ny5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQwOTAyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDkwMlQyMTIxMTRaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT01YjBhOTE4OWUyZTlkOTVjNDY0NjcwNjgyOTRiMjlmYmVhOGEyODRmYzBjOGE0MGI2YzMyNzEwOTVlZDFmODY5JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9.VIVzMVRYVsFFpAjuNWqdohx6L83xnCiHOJtaC3bb_8w)    
 
-**Image Tag**: Wll be dynamically introduced as an environment variable inside the container and returned with the JSON response  
+**Image Tag**: Will be dynamically introduced as an environment variable inside the container and returned with the JSON response  
 **Deploy Color**: Will deploy this version of the application to the corresponding colored deployment  
 **Deploy Only**: If you have no intention of switching the traffic, e.g. refreshing the build  
 **Github Environment**: Which set of environmental variables to use for mapping to different development environments  
