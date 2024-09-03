@@ -122,7 +122,6 @@ jobs:
             echo "Color is GREEN, switching to BLUE"
             echo "NEW_COLOR=blue" >> $GITHUB_OUTPUT
           else
-            # TODO: This is brittle, needs explicit deploy-time configs to prevent making a bad assumption or put first start code somewhere else
             echo "Service wasn't detected, treating like fresh deployment"
             echo "NEW_COLOR=${{ inputs.deploy-color }}" >> $GITHUB_OUTPUT
           fi
